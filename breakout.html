@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Breakout Game</title>
+  <!-- this code between <header> ... </header> -->
+  <link rel="stylesheet" href="framework/flat-ui/bootstrap/css/bootstrap.css">
+  <link rel="stylesheet" href="framework/flat-ui/css/flat-ui.css">
+  <!-- Using only with Flat-UI (free)-->
+  <link rel="stylesheet" href="framework/common-files/css/icon-font.css">
+  <!-- end -->
+  <link rel="stylesheet" href="framework/common-files/css/animations.css">
+  <!-- this code directly before </body> -->
+  <script src="framework/common-files/js/jquery-1.10.2.min.js"></script>
+  <script src="framework/flat-ui/js/bootstrap.min.js"></script>
+  <script src="framework/common-files/js/jquery.scrollTo-1.4.3.1-min.js"></script>
+  <script src="framework/common-files/js/modernizr.custom.js"></script>
+  <script src="framework/common-files/js/page-transitions.js"></script>
+  <script src="framework/common-files/js/easing.min.js"></script>
+  <script src="framework/common-files/js/jquery.svg.js"></script>
+  <script src="framework/common-files/js/jquery.svganim.js"></script>
+  <script src="framework/common-files/js/jquery.parallax.min.js"></script>
+  <script src="framework/common-files/js/startup-kit.js"></script>
+
+  <!-- header -->
+  <link rel="stylesheet" href="framework/ui-kit/ui-kit-header/css/style.css">
+  <!-- content -->
+  <link rel="stylesheet" href="framework/ui-kit/ui-kit-content/css/style.css">
+  <!-- blog -->
+  <link rel="stylesheet" href="framework/ui-kit/ui-kit-blog/css/style.css">
+  <!-- contacts -->
+  <link rel="stylesheet" href="framework/ui-kit/ui-kit-contacts/css/style.css">
+  <!-- crew -->
+  <link rel="stylesheet" href="framework/ui-kit/ui-kit-crew/css/style.css">
+  <!-- price -->
+  <link rel="stylesheet" href="framework/ui-kit/ui-kit-price/css/style.css">
+  <!-- projects -->
+  <link rel="stylesheet" href="framework/ui-kit/ui-kit-projects/css/style.css">
+  <!-- footer -->
+  <link rel="stylesheet" href="framework/ui-kit/ui-kit-footer/css/style.css">
+</head>
+
+
+  <body>
+    <!-- header-9 -->
+    <header class="header-9">
+      <div class="container">
+        <div class="row">
+          <div class="navbar col-sm-12" role="navigation">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle"></button>
+              <a class="brand" href="index.html"><span class="fui-cmd"> </span></a>
+            </div>
+            <div class="collapse navbar-collapse">
+              <ul class="nav">
+                <li><a href="index.html">HOME</a>
+                </li>
+                <li><a href="syllabus.html">SYLLABUS</a>
+                </li>
+                <li><a href="notes.html">NOTES</a>
+                </li>
+              </li>
+              <li><a href="project.html">PROJECT</a>
+              </li>
+                <li><a href="blog.html">BLOG</a>
+                </li>
+                <li><a href="team.html">TEAM</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- content-36 -->
+    <section class="content-36">
+      <div class="container">
+        <h3>Breakout Game with Pure JavaScript</h3>
+        <canvas id="myCanvas" width="480" height="320"></canvas>
+
+        <script>
+        	// store a reference to the <canvas> element to the var canvas variable
+        	var canvas = document.getElementById("myCanvas");
+        	// store 2D rendering context
+        	var ctx = canvas.getContext("2d");
+        	// init ball's radius
+        	var ballRadius = 10;
+        	// init ball's starting position
+        	var x = canvas.width/2;
+        	var y = canvas.height-30;
+        	// init ball's movement per interval by pixel
+        	var dx = 2;
+        	var dy = -2;
+        	// init paddle
+        	var paddleHeight = 10;
+        	var paddleWidth = 75;
+        	var paddleX = (canvas.width - paddleWidth)/2;
+        	// init buttons
+        	var rightPressed = false;
+        	var leftPressed = false;
+        	// init bricks;
+        	var brickRowCount = 3;
+        	var brickColumnCount = 5;
+        	var brickWidth = 75;
+        	var brickHeight = 20;
+        	var brickPadding = 10;
+        	var brickOffsetTop = 30;
+        	var brickOffsetLeft = 30;
+        	// init brick arrays;
+        	var bricks = [];
+        	for (var c = 0; c < brickColumnCount; c++) {
+        		bricks[c] = [];
+        		for (var r = 0; r < brickRowCount; r++) {
+        			bricks[c][r] = {x: 0, y: 0 , status: 1};
+        		};
+        	};
+          // init score;
+          var score = 0;
+          // init lives;
+          var lives = 3;
+        	// keyboard listener
+        	document.addEventListener("keydown", keyDownHandler, false);
+        	document.addEventListener("keyup", keyUpHandler, false);
+          document.addEventListener("mousemove", mouseMoveHandler, false);
+
+          // mouse movement
+          function mouseMoveHandler(e) {
+            var relativeX = e.clientX - canvas.offsetLeft;
+            if (relativeX > 0 && relativeX < canvas.width) {
+              paddleX = relativeX - paddleWidth/2;
+            }
+          }
+        	// keyboard event
+        	function keyDownHandler(e) {
+        		if (e.keyCode == 39) {
+        			rightPressed = true;
+        		}
+        		else if (e.keyCode == 37) {
+        			leftPressed = true;
+        		};
+        	}
+          //detect collision with bricks
+          function collisionDetection() {
+            for (var c = 0; c < brickColumnCount; c++) {
+              for (var r = 0; r < brickRowCount; r++) {
+                var b = bricks[c][r];
+                if (b.status == 1) {
+                  if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
+                    dy = -dy;
+                    b.status = 0;
+                    score++;
+                    if (score == brickRowCount*brickColumnCount) {
+                      alert("YOU WIN, CONGRATULATIONS!");
+                      document.location.reload();
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          function drawScore() {
+            ctx.font = "16px Arial";
+            ctx.fillStyle = "#0095DD";
+            ctx.fillText("Score: "+score, 8, 20);
+          }
+
+          function drawLives() {
+            ctx.font = "16px Arial";
+            ctx.fillStyle = "#0095DD";
+            ctx.fillText("Lives: "+lives, canvas.width-65, 20);
+          }
+
+        	function keyUpHandler(e) {
+        		if (e.keyCode == 39) {
+        			rightPressed = false;
+        		}
+        		else if (e.keyCode == 37) {
+        			leftPressed = false;
+        		};
+        	}
+        	// draw a ball
+        	function drawBall() {
+        		ctx.beginPath();
+        		ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+        		ctx.fillStyle = "#0095DD";
+        		ctx.fill();
+        		ctx.closePath();
+        	}
+        	// draw a paddle
+        	function drawPaddle() {
+        		ctx.beginPath();
+        		ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+        		ctx.fillStyle = "#0095DD";
+        		ctx.fill();
+        		ctx.closePath();
+        	}
+        	// draw array of bricks
+        	function drawBricks() {
+        		for (var c = 0; c < brickColumnCount; c++) {
+        			for (var r = 0; r < brickRowCount; r++) {
+                if (bricks[c][r].status == 1) {
+                  var brickX = (c*(brickWidth + brickPadding))+brickOffsetLeft;
+                  var brickY = (r*(brickHeight + brickPadding))+brickOffsetTop;
+                  bricks[c][r].x = brickX;
+                  bricks[c][r].y = brickY;
+                  ctx.beginPath();
+                  ctx.rect(brickX, brickY, brickWidth, brickHeight);
+                  ctx.fillStyle = "#0095DD";
+                  ctx.fill();
+                  ctx.closePath();
+                }
+        			}
+        		}
+        	}
+
+        	// drawing
+        	function draw() {
+        		// clear area
+        		ctx.clearRect(0, 0, canvas.width, canvas.height);
+        		// draw array of bricks
+        		drawBricks();
+        		// draw a ball
+        		drawBall();
+        		// draw a paddle
+        		drawPaddle();
+            // draw Score
+            drawScore();
+            // draw Lives
+            drawLives();
+        		// bounce off border
+            collisionDetection();
+
+        		if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
+        			dx = -dx;
+        		}
+
+        		if (y + dy < ballRadius) {
+        			dy = -dy;
+        		}
+        		else if (y + dy > canvas.height - ballRadius) {
+        			if (x > paddleX && x < paddleX + paddleWidth) {
+        				dy = -dy;
+        			}
+        			else {
+                lives--;
+                if (!lives) {
+                  alert("GAME OVER");
+                  document.location.reload();
+                }
+                else {
+                  x = canvas.width/2;
+                  y = canvas.height-30;
+                  dx = 2;
+                  dy = -2;
+                  paddleX = (canvas.width-paddleWidth)/2;
+                }
+        			}
+        		}
+        		// key movement
+        		if (rightPressed && paddleX < canvas.width - paddleWidth) {
+        			paddleX += 7;
+        		}
+        		else if (leftPressed && paddleX > 0) {
+        			paddleX -= 7;
+        		};
+        		// ball movement
+        		x += dx;
+        		y += dy;
+            requestAnimationFrame(draw);
+        	}
+        	// execute drawing fuction every 10 miliseconds
+        	draw();
+
+        </script>
+      </div>
+    </section>
+  </body>
+
+</html>
